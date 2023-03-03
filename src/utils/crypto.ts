@@ -38,6 +38,10 @@ const compareBuffers = (a: Buffer, b: Buffer): boolean => {
   return crypto.timingSafeEqual(a, b);
 };
 
+const hash = (input: Buffer, algorithm = 'sha256'): Buffer => {
+  return crypto.createHash(algorithm).update(input).digest();
+};
+
 export {
   randomBytes,
   generateIv,
@@ -45,4 +49,5 @@ export {
   aes128cbcDecrypt,
   computeHmac,
   compareBuffers,
+  hash,
 };
