@@ -38,6 +38,11 @@ const token = f.encrypt(message);
 // returns origin plain text message
 // Example: "This is a top secret message!"
 const plainText = f.decrypt(token);
+
+// You can also use static methods for encryption/decryption
+const fernetToken = Fernet.encrypt(message, key);
+const decryptedText = Fernet.decrypt(fernetToken, key);
+
 ```
 
 ## Fernet Spec
