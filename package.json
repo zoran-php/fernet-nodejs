@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/zoran-php/fernet-nodejs.git"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Fernet algorithm implementation written in Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,11 @@
     "fernet",
     "cryptography",
     "crypto",
-    "cipher"
+    "cipher",
+    "symmetric",
+    "encryption",
+    "decryption",
+    "key"
   ],
   "author": "Zoran Davidovic",
   "license": "ISC",
