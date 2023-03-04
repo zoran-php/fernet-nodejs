@@ -1,6 +1,6 @@
 import {
-  aes128cbcDecrypt,
-  aes128cbcEncrypt,
+  aesDecrypt,
+  aesEncrypt,
   compareBuffers,
   computeHmac,
   fromBase64Url,
@@ -12,7 +12,7 @@ import {
 } from './utils/index';
 
 export class Fernet {
-  private static version: Buffer = Buffer.from([0x80]);
+  static readonly version: Buffer = Buffer.from([0x80]);
 
   constructor(private key: string) {
     Fernet.checkKey(this.key);
@@ -28,7 +28,7 @@ export class Fernet {
    * @returns void
    *
    */
-  private static checkKey(key: string): void {
+  static checkKey(key: string): void {
     try {
       const buffer = fromBase64Url(key);
       if (buffer.length !== 32) {
@@ -79,8 +79,8 @@ export class Fernet {
    * Returns decrypted string as plain text.
    * The decrypted string is encoded as utf-8 encoded string.
    *
-   * @param text - The input text
-   * @returns Encrypted input text encoded as base64url encoded string.
+   * @param token - Fernet token
+   * @returns Decrypted utf-8 encoded string.
    *
    */
   decrypt(token: string): string {
@@ -95,14 +95,14 @@ export class Fernet {
    * Returns decrypted string as plain text.
    * The decrypted string is encoded as utf-8 encoded string.
    *
-   * @param text - The input text
+   * @param token - Fernet token
    * @param key - The provided 32-byte long base64url encoded key
-   * @returns Encrypted input text encoded as base64url encoded string.
+   * @returns Decrypted utf-8 encoded string.
    *
    */
   static decrypt(token: string, key: string): string {
-    Fernet.checkKey(key);
     try {
+      Fernet.checkKey(key);
       const keyBuffer = fromBase64Url(key);
       const signingKey = keyBuffer.subarray(0, 16);
       const encryptionKey = keyBuffer.subarray(16, 32);
@@ -124,8 +124,8 @@ export class Fernet {
       if (!isVerified) {
         throw new Error('Invalid signature. Signature did not match digest.');
       }
-      const decrypted = aes128cbcDecrypt(cipherText, encryptionKey, iv);
-      return decrypted;
+      const decrypted = aesDecrypt(cipherText, encryptionKey, iv);
+      return decrypted.toString('utf-8');
     } catch (err) {
       throw err;
     }
@@ -144,15 +144,15 @@ export class Fernet {
    *
    */
   static encrypt(text: string, key: string): string {
-    Fernet.checkKey(key);
     try {
+      Fernet.checkKey(key);
       const keyBuffer = fromBase64Url(key);
       const signingKey = keyBuffer.subarray(0, 16);
       const encryptionKey = keyBuffer.subarray(16, 32);
       const version = Fernet.version;
       const timestamp = ts8byteBuffer();
       const iv = generateIv();
-      const cipherText = aes128cbcEncrypt(text, encryptionKey, iv);
+      const cipherText = aesEncrypt(text, encryptionKey, iv);
       const hmacInput = Buffer.concat([version, timestamp, iv, cipherText]);
       const hmac = computeHmac(hmacInput, signingKey);
       const token = Buffer.concat([version, timestamp, iv, cipherText, hmac]);

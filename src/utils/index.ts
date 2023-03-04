@@ -1,7 +1,7 @@
 export { fromBase64Url, toBase64Url } from './base64url';
 export {
-  aes128cbcDecrypt,
-  aes128cbcEncrypt,
+  aesDecrypt,
+  aesEncrypt,
   compareBuffers,
   computeHmac,
   generateIv,

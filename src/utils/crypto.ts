@@ -8,26 +8,27 @@ const generateIv = () => {
   return randomBytes(16);
 };
 
-const aes128cbcEncrypt = (
+const aesEncrypt = (
   plainText: string,
   key: Buffer,
-  iv: Buffer
+  iv: Buffer,
+  algo = 'aes-128-cbc'
 ): Buffer => {
-  const cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
+  const cipher = crypto.createCipheriv(algo, key, iv);
   let encrypted = cipher.update(plainText, 'utf8', 'hex');
   encrypted += cipher.final('hex');
   return Buffer.from(encrypted, 'hex');
 };
 
-const aes128cbcDecrypt = (
+const aesDecrypt = (
   cipherText: Buffer,
   key: Buffer,
-  iv: Buffer
-): string => {
-  const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
-  let decrypted = decipher.update(cipherText, null, 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+  iv: Buffer,
+  algo = 'aes-128-cbc'
+): Buffer => {
+  const decipher = crypto.createDecipheriv(algo, key, iv);
+  let decrypted = decipher.update(cipherText);
+  return Buffer.concat([decrypted, decipher.final()]);
 };
 
 const computeHmac = (input: Buffer, key: Buffer, algo = 'sha256'): Buffer => {
@@ -45,8 +46,8 @@ const hash = (input: Buffer, algorithm = 'sha256'): Buffer => {
 export {
   randomBytes,
   generateIv,
-  aes128cbcEncrypt,
-  aes128cbcDecrypt,
+  aesEncrypt,
+  aesDecrypt,
   computeHmac,
   compareBuffers,
   hash,
