@@ -98,6 +98,7 @@ export class Fernet {
    * @param token - Fernet token
    * @param key - The provided 32-byte long base64url encoded key
    * @returns Decrypted utf-8 encoded string.
+   * @throws Error if the key, token or cipher text is invalid
    *
    */
   static decrypt(token: string, key: string): string {
@@ -107,6 +108,12 @@ export class Fernet {
       const signingKey = keyBuffer.subarray(0, 16);
       const encryptionKey = keyBuffer.subarray(16, 32);
       const tokenBuffer = fromBase64Url(token);
+      if (
+        tokenBuffer.length < 73 ||
+        (tokenBuffer.length - (1 + 8 + 16 + 32)) % 16 !== 0
+      ) {
+        throw new Error('Fernet token has invalid length.');
+      }
       const version = tokenBuffer.subarray(0, 1);
       if (!compareBuffers(version, Fernet.version)) {
         throw new Error('Fernet version must be 0x80');
@@ -141,6 +148,7 @@ export class Fernet {
    *
    * @param text - The input text
    * @returns Fernet token encoded as base64url encoded string.
+   * @throws Error if the key is invalid
    *
    */
   static encrypt(text: string, key: string): string {

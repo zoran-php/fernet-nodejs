@@ -17,9 +17,17 @@ describe('Fernet', () => {
 
   it('should check if key is valid', () => {
     expect(() => Fernet.checkKey('1HPScCt9WzQ8nYhTUTCESeDzqxKxw')).toThrow();
-    expect(() => Fernet.checkKey('1HPScCt9WzQ8nYhTUTCESeDzqxKxw_DkZdOb3qABiM')).toThrow();
-    expect(() => Fernet.checkKey('7sVRqeEHHTUM6T1dPfasQ46yP4YlJNepqXV5laAi6pU7JwvaJd6e7UYigtn35G8R2a0Bc4iCu0k')).toThrow();
-    expect(() => Fernet.checkKey('1HPScCt9WzQ8nYhTUTCESeDzqxKxw_DkZdOb3qABiM0=')).not.toThrow();
+    expect(() =>
+      Fernet.checkKey('1HPScCt9WzQ8nYhTUTCESeDzqxKxw_DkZdOb3qABiM')
+    ).toThrow();
+    expect(() =>
+      Fernet.checkKey(
+        '7sVRqeEHHTUM6T1dPfasQ46yP4YlJNepqXV5laAi6pU7JwvaJd6e7UYigtn35G8R2a0Bc4iCu0k'
+      )
+    ).toThrow();
+    expect(() =>
+      Fernet.checkKey('1HPScCt9WzQ8nYhTUTCESeDzqxKxw_DkZdOb3qABiM0=')
+    ).not.toThrow();
   });
 
   it('should encrypt and decrypt the text', () => {
@@ -30,7 +38,9 @@ describe('Fernet', () => {
   });
 
   it('should throw error when the key is invalid', () => {
-    expect(() => new Fernet('1HPScCt9WzQ8nYhTUTCESeDzqxKxw_DkZdOb3qABiM')).toThrow();
+    expect(
+      () => new Fernet('1HPScCt9WzQ8nYhTUTCESeDzqxKxw_DkZdOb3qABiM')
+    ).toThrow();
   });
 
   it('should throw error when the token is invalid', () => {
@@ -57,9 +67,28 @@ describe('Fernet', () => {
     expect(Fernet.deriveKey('12345')).toBe(expected);
   });
 
+  it('should throw an error if the Fernet token length is below 73 bytes', () => {
+    const token =
+      'uPcdCjm1q6CuD2eEOs4D0BsKkpwG8_g3Q5TWswO2GJj9-Sv58cfAd_vSfQ6Xry0MsW8LrFDXjNYeePNlsCQ4JRB6CJQ8oQ==';
+    expect(() => Fernet.decrypt(token, key)).toThrow(
+      'Fernet token has invalid length.'
+    );
+  });
+
+  it('should throw an error if the Fernet token cyphertext is not multiple of 16', () => {
+    const token =
+      'uEPLxRHRr-483l5jqdKQJ-NNkyol7kVkam_xKdpU-BVqNzs18Dazegf4qBdIpQxegJ_ehWuPzxrnd-OoChuhTEMEcrnY9aKTF4DKozfLlwc=';
+    expect(() => Fernet.decrypt(token, key)).toThrow(
+      'Fernet token has invalid length.'
+    );
+  });
+
   it('should throw an error if the Fernet token has invalid version', () => {
-    const token = 'eQAAAABkAwa0zA9m4oxSb5lh76kT1vHYE3zaWcsmBQdKfvBVPgCwC9sI9g1LgLJ11O0Ks9MObalfQs_7V2wFqWJDCyt5Zn2h8g==';
-    expect(() => Fernet.decrypt(token, key)).toThrow('Fernet version must be 0x80');
+    const token =
+      'TBeKsSmztItoOQE5SB3zuWgqHMxc5OndqP6LuK3PsjGCidoqKRgf3V8rbADoN60DYH_XTJptLurqZeoyDew9OR6RFLcftFfJkw==';
+    expect(() => Fernet.decrypt(token, key)).toThrow(
+      'Fernet version must be 0x80'
+    );
   });
 
   it('should throw an error if the Fernet token has invalid signature', () => {
@@ -68,6 +97,8 @@ describe('Fernet', () => {
     const tokenBuffer = Buffer.from(token, 'base64url');
     tokenBuffer.writeUInt32BE(0, tokenBuffer.length - 32);
     let invalidSignatureToken = tokenBuffer.toString('base64url');
-    expect(() => Fernet.decrypt(invalidSignatureToken, key)).toThrow('Invalid signature. Signature did not match digest.');
+    expect(() => Fernet.decrypt(invalidSignatureToken, key)).toThrow(
+      'Invalid signature. Signature did not match digest.'
+    );
   });
 });

@@ -10,7 +10,9 @@ const toBase64Url = (buffer: Buffer) => {
 const fromBase64Url = (base64url: string) => {
   const unpadded = base64url.replace(/\=/g, '');
   if (Buffer.from(unpadded, 'base64url').toString('base64url') !== unpadded) {
-    throw new Error('Invalid encoding. String must be base64url encoded string.');
+    throw new Error(
+      'Invalid encoding. String must be base64url encoded string.'
+    );
   }
   const buff = Buffer.from(unpadded, 'base64url');
   return buff;
