@@ -28,7 +28,7 @@
     "key"
   ],
   "author": "Zoran Davidovic",
-  "license": "ISC",
+  "license": "GPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
